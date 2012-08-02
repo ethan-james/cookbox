@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/cookbox" android:layout_width="fill_parent" android:layout_height="fill_parent">
+  <ListView android:id="@android:id/list" android:layout_width="match_parent" android:layout_height="wrap_content" ></ListView>
+  <SlidingDrawer android:id="@+id/search_drawer" 
+                 android:handle="@+id/slideHandleButton" 
+                 android:content="@+id/contentLayout"
+                 android:layout_width="fill_parent"
+                 android:layout_height="60dip"
+                 android:orientation="vertical"
+                 android:gravity="center"
+                 android:layout_alignParentBottom="true" >
+      <Button android:id="@+id/slideHandleButton" android:layout_width="0dip" android:layout_height="0dip" android:visibility="gone" />
+      <RelativeLayout android:id="@+id/contentLayout"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"  
+                    android:orientation="horizontal" 
+                    android:background="#FF000000">
+        <Button android:id="@+id/search_button" android:text="@string/search" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentRight="true" android:onClick="doSearch"/>
+        <EditText android:id="@+id/search" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_toLeftOf="@id/search_button"></EditText>
+      </RelativeLayout>
+  </SlidingDrawer>
+</RelativeLayout>

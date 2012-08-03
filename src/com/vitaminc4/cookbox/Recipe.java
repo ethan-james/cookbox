@@ -7,8 +7,13 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import android.util.Log;
 import android.database.Cursor;
- 
-public class Recipe {
+import java.io.InputStream;
+import android.webkit.WebView;
+import java.util.Scanner;
+import android.content.Context;
+import java.io.*;
+
+public class Recipe implements Serializable {
   
   public String name;
   public int prep_time;
@@ -65,12 +70,48 @@ public class Recipe {
     }
   }
   
+  public void set(String field, String[] values) {
+    if (field == "ingredients") this.ingredients = Arrays.asList(values);
+    else if (field == "directions") this.directions = Arrays.asList(values);
+  }
+  
   public void add(String field, String value) {
     if (field == "ingredient") this.ingredients.add(value);
     else if (field == "recipetext") this.directions.add(value);
   }
   
+  public String toMarkdown() {
+    String ingredients_list = "", directions_list = "";  
+    String md = "# " + this.name + " #\n\n";
+    
+    md += "**Ingredients**  \n\n";
+    
+    for (String ingredient : this.ingredients) md += "* " + ingredient + "\n";
+    
+    md += "\n**Directions**  \n\n";
+    for (String direction : this.directions) md += "1. " + direction + "\n";
+    
+    md += "\n";
+    md += "**Prep time:** " + this.prep_time + "  \n";
+    md += "**Cook time:** " + this.cook_time + "  \n";
+    md += "**Quantity:** " + this.quantity + "  \n";
+    md += this.url + "\n\n";
+    md += "**Comments:** " + this.comments;
+    
+    return md;
+  }
+  
   public String toString() {
     return this.name + ": " + this.url;
+  }
+
+  protected String convertStreamToString(InputStream is) {
+    try {
+      Scanner scanner = new Scanner(is, "UTF-8").useDelimiter("\\A");
+      if (scanner.hasNext()) return scanner.next();
+      return "";
+    } catch (java.util.NoSuchElementException e) {
+      return "";
+    }
   }
 }

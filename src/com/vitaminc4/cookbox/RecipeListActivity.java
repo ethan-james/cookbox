@@ -58,8 +58,10 @@ public class RecipeListActivity extends SherlockListActivity {
   @Override public void onListItemClick(ListView l, View v, int position, long id) {
     Cursor c = (Cursor)l.getItemAtPosition(position);
     int recipe_id = c.getInt(c.getColumnIndex("_id"));
+    DatabaseHandler dbh = new DatabaseHandler(this);
     Intent i = new Intent(this, RecipeActivity.class);
-    i.putExtra("recipe_id", recipe_id);
+
+    i.putExtra("recipe", dbh.getRecipe(recipe_id));
     startActivity(i);
   }
   
@@ -68,7 +70,7 @@ public class RecipeListActivity extends SherlockListActivity {
     i.inflate(R.menu.main, m);
     return true;
   }
-  
+
   @Override public boolean onOptionsItemSelected(MenuItem m) {
     switch (m.getItemId()) {
       case R.id.search_menu_item:

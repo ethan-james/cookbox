@@ -39,7 +39,8 @@ public class RecipeSearchAdapter extends BaseAdapter {
 	}
 	
 	@Override public Object getItem(int position) {
-	  return this.values.get(position);
+	  RecipeListing r = this.values.get(position);
+	  return r == null ? null : r.url;
 	}
 	
 	@Override public int getCount() {

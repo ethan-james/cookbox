@@ -104,6 +104,10 @@ public class Recipe implements Serializable {
   public String toString() {
     return this.name + ": " + this.url;
   }
+  
+  public String slug() {
+    return this.name.toLowerCase().replace("[^a-z0-9]+", "-");
+  }
 
   protected String convertStreamToString(InputStream is) {
     try {

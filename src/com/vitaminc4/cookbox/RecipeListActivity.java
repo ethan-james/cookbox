@@ -19,6 +19,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.MenuInflater;
 import android.widget.SlidingDrawer;
 import android.widget.EditText;
+import android.content.SharedPreferences;
 
 public class RecipeListActivity extends SherlockListActivity {
   /** Called when the activity is first created. */
@@ -26,33 +27,18 @@ public class RecipeListActivity extends SherlockListActivity {
     super.onCreate(savedInstanceState);
     this.setContentView(R.layout.cookbox);
     
+    Dropbox.initialize(this.getSharedPreferences("dropbox", 0));
+    Dropbox.authenticate();
+    LocalCache.initialize(getApplicationContext());
+    
     ListView recipe_list = (ListView) findViewById(android.R.id.list);
-
-    // List<Recipe> recipes = null;
-    // try {
-    //   SAXParserFactory spf = SAXParserFactory.newInstance();
-    //   SAXParser sp = spf.newSAXParser();
-    //   XMLReader xr = sp.getXMLReader();
-    //   ImportHandler h = new ImportHandler();
-    // 
-    //   xr.setContentHandler(h);
-    //   xr.parse(new InputSource(this.getResources().openRawResource(R.raw.my_cookbook)));
-    //   recipes = h.getParsedData();
-    // } catch(Exception e) { e.printStackTrace(); }
-    // DatabaseHandler db = new DatabaseHandler(this);
-    // Log.d("Cookbox", new Boolean(recipes == null).toString());
-    // for (Recipe r : recipes) db.addRecipe(r);
-    // 
-    // ArrayAdapter<Recipe> a = new RecipeListAdapter(this, recipes);
-    // this.setListAdapter(a);
+    List<String> changed_files = Dropbox.delta();
+    for (String path : changed_files) {
+      String md = Dropbox.getFile(path);
+      LocalCache.writeToFile(path, md);
+    }
     
-    DatabaseHandler dbh = new DatabaseHandler(this);
-    Cursor c = dbh.getRecipes();
-    String[] from = new String[]{"name"};
-    int[] to = new int[]{R.id.label};
-    SimpleCursorAdapter cursorAdapter = new SimpleCursorAdapter(this, R.layout.recipe_list_view, c, from, to);
-    
-    recipe_list.setAdapter(cursorAdapter);
+    recipe_list.setAdapter(new RecipeListAdapter(this));
   }  
   
   @Override public void onListItemClick(ListView l, View v, int position, long id) {
@@ -92,3 +78,21 @@ public class RecipeListActivity extends SherlockListActivity {
     startActivity(i);
   }
 }
+
+// List<Recipe> recipes = null;
+// try {
+//   SAXParserFactory spf = SAXParserFactory.newInstance();
+//   SAXParser sp = spf.newSAXParser();
+//   XMLReader xr = sp.getXMLReader();
+//   ImportHandler h = new ImportHandler();
+// 
+//   xr.setContentHandler(h);
+//   xr.parse(new InputSource(this.getResources().openRawResource(R.raw.my_cookbook)));
+//   recipes = h.getParsedData();
+// } catch(Exception e) { e.printStackTrace(); }
+// DatabaseHandler db = new DatabaseHandler(this);
+// Log.d("Cookbox", new Boolean(recipes == null).toString());
+// for (Recipe r : recipes) db.addRecipe(r);
+// 
+// ArrayAdapter<Recipe> a = new RecipeListAdapter(this, recipes);
+// this.setListAdapter(a);

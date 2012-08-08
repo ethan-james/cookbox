@@ -12,9 +12,10 @@ import android.webkit.WebView;
 import java.util.Scanner;
 import android.content.Context;
 import java.io.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Recipe implements Serializable {
-  
   public String name;
   public int prep_time;
   public int cook_time;
@@ -28,6 +29,24 @@ public class Recipe implements Serializable {
   public Recipe() {
     this.ingredients = new ArrayList<String>();
     this.directions = new ArrayList<String>();
+  }
+  
+  public Recipe(String md) {
+    this.ingredients = new ArrayList<String>();
+    this.directions = new ArrayList<String>();
+    Log.w("Cookbox", md);
+    this.name = Pattern.compile("# (.+) #").matcher(md).group(1);
+    this.prep_time = new Integer(Pattern.compile("\\*\\*Prep time:\\*\\* (.+)  $").matcher(md).group(1));
+    this.cook_time = new Integer(Pattern.compile("\\*\\*Cook time:\\*\\* (.+)  $").matcher(md).group(1));
+    this.quantity = new Integer(Pattern.compile("\\*\\*Quantity:\\*\\* (.+)  $").matcher(md).group(1));
+    this.url = Pattern.compile("(https?://\\S+)").matcher(md).group(1);
+    this.comments = Pattern.compile("\\*\\*Comments:\\*\\* (.+)").matcher(md).group(1);
+    
+    Matcher ingredients = Pattern.compile("^\\* (.+)$").matcher(md);
+    while (ingredients.find()) this.ingredients.add(ingredients.group(1));
+    
+    Matcher directions = Pattern.compile("^\\d+\\. (.+)$").matcher(md);
+    while (directions.find()) this.directions.add(directions.group(1));
   }
   
   public Recipe(Cursor cr, Cursor ci, Cursor cd) {
@@ -106,7 +125,7 @@ public class Recipe implements Serializable {
   }
   
   public String slug() {
-    return this.name.toLowerCase().replace("[^a-z0-9]+", "-");
+    return this.name.toLowerCase().replaceAll("[^a-z0-9]+", "-");
   }
 
   protected String convertStreamToString(InputStream is) {

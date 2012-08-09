@@ -1,7 +1,13 @@
 package com.vitaminc4.cookbox;
 
 public class SettingsActivity extends android.preference.PreferenceActivity {
+  @Override protected void onCreate(Bundle icicle) {
+    super.onCreate(icicle);
+  }
   
+  @Override public void onBuildHeaders(List<Header> target) {
+    loadHeadersFromResource(R.menu.preferences, target);
+  }
 }
 
 // mDBApi.getSession().startAuthentication(RecipeActivity.this);

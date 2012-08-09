@@ -42,12 +42,8 @@ public class RecipeListActivity extends SherlockListActivity {
   }  
   
   @Override public void onListItemClick(ListView l, View v, int position, long id) {
-    Cursor c = (Cursor)l.getItemAtPosition(position);
-    int recipe_id = c.getInt(c.getColumnIndex("_id"));
-    DatabaseHandler dbh = new DatabaseHandler(this);
     Intent i = new Intent(this, RecipeActivity.class);
-
-    i.putExtra("recipe", dbh.getRecipe(recipe_id));
+    i.putExtra("recipe", (Recipe) l.getItemAtPosition(position));
     startActivity(i);
   }
   

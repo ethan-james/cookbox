@@ -34,18 +34,29 @@ public class Recipe implements Serializable {
   public Recipe(String md) {
     this.ingredients = new ArrayList<String>();
     this.directions = new ArrayList<String>();
-    Log.w("Cookbox", md);
-    this.name = Pattern.compile("# (.+) #").matcher(md).group(1);
-    this.prep_time = new Integer(Pattern.compile("\\*\\*Prep time:\\*\\* (.+)  $").matcher(md).group(1));
-    this.cook_time = new Integer(Pattern.compile("\\*\\*Cook time:\\*\\* (.+)  $").matcher(md).group(1));
-    this.quantity = new Integer(Pattern.compile("\\*\\*Quantity:\\*\\* (.+)  $").matcher(md).group(1));
-    this.url = Pattern.compile("(https?://\\S+)").matcher(md).group(1);
-    this.comments = Pattern.compile("\\*\\*Comments:\\*\\* (.+)").matcher(md).group(1);
+
+    Matcher m = Pattern.compile("# (.+) #").matcher(md);
+    this.name = m.find() ? m.group(1) : "";
     
-    Matcher ingredients = Pattern.compile("^\\* (.+)$").matcher(md);
+    m = Pattern.compile("^\\*\\*Prep time:\\*\\* (.+)  $", Pattern.MULTILINE).matcher(md);
+    this.prep_time = m.find() ? new Integer(m.group(1)) : 0;
+    
+    m = Pattern.compile("^\\*\\*Cook time:\\*\\* (.+)  $", Pattern.MULTILINE).matcher(md);
+    this.cook_time = m.find() ? new Integer(m.group(1)) : 0;
+    
+    m = Pattern.compile("^\\*\\*Quantity:\\*\\* (.+)  $", Pattern.MULTILINE).matcher(md);
+    this.quantity = m.find() ? new Integer(m.group(1)) : 0;
+    
+    m = Pattern.compile("(https?://\\S+)", Pattern.MULTILINE).matcher(md);
+    this.url = m.find() ? m.group(1) : "";
+    
+    m = Pattern.compile("^\\*\\*Comments:\\*\\* (.+)", Pattern.MULTILINE).matcher(md);
+    this.comments = m.find() ? m.group(1) : "";
+    
+    Matcher ingredients = Pattern.compile("^\\* (.+)$", Pattern.MULTILINE).matcher(md);
     while (ingredients.find()) this.ingredients.add(ingredients.group(1));
     
-    Matcher directions = Pattern.compile("^\\d+\\. (.+)$").matcher(md);
+    Matcher directions = Pattern.compile("^\\d+\\. (.+)$", Pattern.MULTILINE).matcher(md);
     while (directions.find()) this.directions.add(directions.group(1));
   }
   

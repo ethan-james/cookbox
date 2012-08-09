@@ -21,6 +21,7 @@ public class RecipeListAdapter extends BaseAdapter {
 
     for (String f : LocalCache.getFileList()) {
       String md = LocalCache.getFile(f);
+      Log.i("Cookbox", new Integer(md.length()).toString());
       this.values.add(new Recipe(md));
     }
 	}
@@ -30,8 +31,7 @@ public class RecipeListAdapter extends BaseAdapter {
 	}
 	
 	@Override public Object getItem(int position) {
-	  Recipe r = this.values.get(position);
-	  return r == null ? null : r.url;
+	  return this.values.get(position);
 	}
 	
 	@Override public int getCount() {
@@ -43,6 +43,7 @@ public class RecipeListAdapter extends BaseAdapter {
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View rowView = inflater.inflate(R.layout.recipe_list_view, parent, false);
 		TextView textView = (TextView) rowView.findViewById(R.id.label);
+		textView.setText(r.name);
 		return rowView;
 	}
 }

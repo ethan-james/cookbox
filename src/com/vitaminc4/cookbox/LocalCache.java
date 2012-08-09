@@ -3,11 +3,12 @@ package com.vitaminc4.cookbox;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileInputStream;
-import java.io.DataInputStream;
+import java.util.Scanner;
 import java.io.IOException;
 import android.content.Context;
 import java.util.List;
 import java.util.ArrayList;
+import android.util.Log;
 
 public class LocalCache {
   private static Context context;
@@ -34,20 +35,24 @@ public class LocalCache {
     return filelist;
   }
   
-  public static String getFile(String path) {
+  public static String getFile(String filename) {
     FileInputStream file;
-    StringBuffer str = new StringBuffer();
-    
+    Scanner scanner = null;
+    StringBuilder text = new StringBuilder();
     try {
-      file = context.openFileInput(path);
-      DataInputStream data = new DataInputStream(file);
-      String line = null;
-      if ((line = data.readLine()) != null) str.append(line);
-
-      data.close();
-      file.close();
-    } catch (Exception e) { e.printStackTrace(); }
+      StringBuffer str = new StringBuffer();
+      File dir = context.getDir("recipes", Context.MODE_PRIVATE);
+      String NL = System.getProperty("line.separator");
+      scanner = new Scanner(new FileInputStream(dir.getAbsolutePath() + "/" + filename), "utf-8");
+      while (scanner.hasNextLine()){
+        text.append(scanner.nextLine() + NL);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally{
+      if (scanner != null) scanner.close();
+    }
     
-    return str.toString();
+    return text.toString();
   }
 }

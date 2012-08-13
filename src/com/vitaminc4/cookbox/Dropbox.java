@@ -32,13 +32,28 @@ public class Dropbox {
   }
   
   public static boolean authenticate() {
-    AppKeyPair appKeyPair = new AppKeyPair(APP_KEY, APP_SECRET);
     String key = settings.getString("key", null);
     String secret = settings.getString("secret", null);
-    AccessTokenPair accessToken = new AccessTokenPair("fxz4wu4lna9fu4t", "pzwwv2jj4zzhcdl");
+    AppKeyPair appKeyPair = new AppKeyPair(APP_KEY, APP_SECRET);
+    AccessTokenPair accessToken = (key != null && secret != null) ? new AccessTokenPair(key, secret) : null;
     AndroidAuthSession session = new AndroidAuthSession(appKeyPair, ACCESS_TYPE, accessToken);
-    mDBApi = new DropboxAPI<AndroidAuthSession>(session);
-    return true;
+    mDBApi = new DropboxAPI<AndroidAuthSession>(session);  
+  
+    return (accessToken != null);
+  }
+  
+  public static void startAuthentication(Context c) {
+    mDBApi.getSession().startAuthentication(c);
+  }
+  
+  public static boolean authenticationSuccessful() {
+    return mDBApi != null && mDBApi.getSession().authenticationSuccessful();
+  }
+  
+  public static String finishAuthentication() {
+    mDBApi.getSession().finishAuthentication();
+    AccessTokenPair token = mDBApi.getSession().getAccessTokenPair();
+    return token.key + ":" + token.secret;
   }
   
   public static boolean putFile(String filename, String contents) {

@@ -28,14 +28,15 @@ public class RecipeListActivity extends SherlockListActivity {
     this.setContentView(R.layout.cookbox);
     
     Dropbox.initialize(this.getSharedPreferences("dropbox", 0));
-    Dropbox.authenticate();
     LocalCache.initialize(getApplicationContext());
-    
     ListView recipe_list = (ListView) findViewById(android.R.id.list);
-    List<String> changed_files = Dropbox.delta();
-    for (String path : changed_files) {
-      String md = Dropbox.getFile(path);
-      LocalCache.writeToFile(path, md);
+    
+    if (Dropbox.authenticate()) {
+      List<String> changed_files = Dropbox.delta();
+      for (String path : changed_files) {
+        String md = Dropbox.getFile(path);
+        LocalCache.writeToFile(path, md);
+      }
     }
     
     recipe_list.setAdapter(new RecipeListAdapter(this));
@@ -58,6 +59,9 @@ public class RecipeListActivity extends SherlockListActivity {
       case R.id.search_menu_item:
         openSearch();
         return true;
+      case R.id.settings_menu_item:
+        openSettings();
+        return true;
     }
     return false;
   }
@@ -65,6 +69,11 @@ public class RecipeListActivity extends SherlockListActivity {
   public void openSearch() {
     SlidingDrawer search_drawer = (SlidingDrawer) findViewById(R.id.search_drawer);
     search_drawer.animateOpen();
+  }
+  
+  public void openSettings() {
+    Intent i = new Intent(this, SettingsActivity.class);
+    startActivity(i);
   }
 
   public void doSearch(View view) {

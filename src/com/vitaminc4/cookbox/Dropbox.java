@@ -16,24 +16,24 @@ import java.io.OutputStream;
 import android.util.Log;
 import java.util.List;
 import java.util.ArrayList;
+import android.preference.PreferenceManager;
 
 public class Dropbox {
   final static private String APP_KEY = "qw5gcw6gry0qj39";
   final static private String APP_SECRET = "4vnujrisulr1fih";
   final static private AccessType ACCESS_TYPE = AccessType.APP_FOLDER;
   final static private int delta_refresh_window = 600;
+  private static Context context;
 
-  private static SharedPreferences settings;
   private static int last_delta = 0;
   private static DropboxAPI<AndroidAuthSession> mDBApi;
   
-  public static void initialize(SharedPreferences s) {
-    settings = s;
-  }
-  
-  public static boolean authenticate() {
-    String key = settings.getString("key", null);
-    String secret = settings.getString("secret", null);
+  public static boolean authenticate(Context c) {
+    context = c;
+    SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(context);
+    String[] tokens = p.getString("dropbox", "").split(":");
+    String key = tokens.length == 2 ? tokens[0] : null;
+    String secret = tokens.length == 2 ? tokens[1] : null;
     AppKeyPair appKeyPair = new AppKeyPair(APP_KEY, APP_SECRET);
     AccessTokenPair accessToken = (key != null && secret != null) ? new AccessTokenPair(key, secret) : null;
     AndroidAuthSession session = new AndroidAuthSession(appKeyPair, ACCESS_TYPE, accessToken);
@@ -69,7 +69,8 @@ public class Dropbox {
   }
   
   public static List<String> delta() {
-    String cursor = settings.getString("cursor", null);
+    SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(context);
+    String cursor = p.getString("cursor", null);
     List<String> files = new ArrayList<String>();
     DropboxAPI.DeltaPage page;
 
@@ -82,7 +83,7 @@ public class Dropbox {
         }
       } while (page.hasMore);
 
-      SharedPreferences.Editor edit = settings.edit();
+      SharedPreferences.Editor edit = p.edit();
       edit.putString("cursor", cursor);
       edit.commit();
       

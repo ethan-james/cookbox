@@ -20,6 +20,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import android.widget.SlidingDrawer;
 import android.widget.EditText;
 import android.content.SharedPreferences;
+import android.content.Context;
 
 public class RecipeListActivity extends SherlockListActivity {
   /** Called when the activity is first created. */
@@ -27,11 +28,11 @@ public class RecipeListActivity extends SherlockListActivity {
     super.onCreate(savedInstanceState);
     this.setContentView(R.layout.cookbox);
     
-    Dropbox.initialize(this.getSharedPreferences("dropbox", 0));
-    LocalCache.initialize(getApplicationContext());
+    Context c = getApplicationContext();
+    LocalCache.initialize(c);
     ListView recipe_list = (ListView) findViewById(android.R.id.list);
     
-    if (Dropbox.authenticate()) {
+    if (Dropbox.authenticate(c)) {
       List<String> changed_files = Dropbox.delta();
       for (String path : changed_files) {
         String md = Dropbox.getFile(path);

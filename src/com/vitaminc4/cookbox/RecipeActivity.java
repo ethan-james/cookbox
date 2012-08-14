@@ -16,6 +16,9 @@ import android.content.Context;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import java.net.URL;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
@@ -25,19 +28,35 @@ import com.actionbarsherlock.view.MenuInflater;
 public class RecipeActivity extends SherlockActivity {
   private Recipe recipe;
   
-  @Override public void onStart() {
-    super.onStart();
+  @Override public void onCreate(Bundle icicle) {
+    super.onCreate(icicle);
     this.setContentView(R.layout.recipe_view);
 
     Intent i = this.getIntent();
-    recipe = (Recipe) i.getSerializableExtra("recipe");
-    
+    if (Intent.ACTION_SEND.equals(i.getAction())) {
+      try {
+        recipe = new Recipe(new URL(i.getStringExtra(Intent.EXTRA_TEXT)));
+      } catch (Exception e) { e.printStackTrace(); }
+    } else {
+      recipe = (Recipe) i.getSerializableExtra("recipe");
+    }
+
     if (recipe != null) {
       WebView recipe_view = (WebView) findViewById(R.id.recipe);
       AndDown a = new AndDown();
       String html = "<html><head><style>body { background-color: black; color: white; } h1 { font-size: 20px; }</style></head><body>";
       html += a.markdownToHtml(recipe.toMarkdown()) + "</body></html>";
       recipe_view.loadData(html, "text/html", null);
+    } else {
+      AlertDialog.Builder builder = new AlertDialog.Builder(this);
+      builder.setMessage("This recipe isn't in a readable format.")
+        .setCancelable(true).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+          public void onClick(DialogInterface dialog, int id) {
+            dialog.cancel();
+            finish();
+          }
+      });
+      AlertDialog alert = builder.show();
     }
   }
   

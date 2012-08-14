@@ -14,6 +14,11 @@ import android.content.Context;
 import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jsoup.Jsoup;
+import org.jsoup.Connection;
+import org.jsoup.nodes.*;
+import org.jsoup.select.Elements;
+import java.net.URL;
 
 public class Recipe implements Serializable {
   public String name;
@@ -60,31 +65,15 @@ public class Recipe implements Serializable {
     while (directions.find()) this.directions.add(directions.group(1));
   }
   
-  public Recipe(Cursor cr, Cursor ci, Cursor cd) {
-    int name_idx = cr.getColumnIndex("name");
-    int prep_idx = cr.getColumnIndex("prep_time");
-    int cook_idx = cr.getColumnIndex("cook_time");
-    int url_idx = cr.getColumnIndex("url");
-    int img_url_idx = cr.getColumnIndex("image_url");
-    int qty_idx = cr.getColumnIndex("quantity");
-    int comments_idx = cr.getColumnIndex("comments");
-    int ingredient_step_idx = ci.getColumnIndex("step");
-    int direction_step_idx = cd.getColumnIndex("step");
-    
-    cr.moveToFirst();
-    this.name = cr.getString(name_idx);
-    this.prep_time = cr.getInt(prep_idx);
-    this.cook_time = cr.getInt(cook_idx);
-    this.url = cr.getString(url_idx);
-    this.image_url = cr.getString(img_url_idx);
-    this.quantity = cr.getInt(qty_idx);
-    this.comments = cr.getString(comments_idx);
-    
-    this.ingredients = new ArrayList<String>();
-    while(ci.moveToNext()) this.add("ingredient", ci.getString(ingredient_step_idx));
-    
-    this.directions = new ArrayList<String>();
-    while(cd.moveToNext()) this.add("recipetext", cd.getString(direction_step_idx));
+  public Recipe(URL url) {
+    this.name = d.select(".field-name-title h1").text();
+    this.set("ingredients", d.select(".field-name-field-recipe-ingredients p").html().split("<br />"));
+    this.set("directions", d.select(".field-name-field-recipe-directions p").html().split("<br />"));
+    this.url = url;
+    this.prep_time = Integer.parseInt(d.select(".field-name-field-recipe-preptime .field-item").text().replace("^(\\d+).*$", "\\1"));
+    this.cook_time = Integer.parseInt(d.select(".field-name-field-recipe-cooktime .field-item").text().replace("^(\\d+).*$", "\\1"));
+    this.quantity = Integer.parseInt(d.select(".field-name-field-recipe-servings .field-item").text().replace("^(\\d+).*$", "\\1"));
+    this.comments = "";
   }
   
   public void set(String field, String value) throws NoSuchFieldException, IllegalAccessException {

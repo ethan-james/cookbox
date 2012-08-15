@@ -2,9 +2,6 @@ package com.vitaminc4.cookbox;
 
 import java.lang.reflect.Field;
 import java.util.*;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import android.util.Log;
 import android.database.Cursor;
 import java.io.InputStream;
@@ -14,10 +11,6 @@ import android.content.Context;
 import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.jsoup.Jsoup;
-import org.jsoup.Connection;
-import org.jsoup.nodes.*;
-import org.jsoup.select.Elements;
 import java.net.URL;
 
 public class Recipe implements Serializable {
@@ -66,14 +59,7 @@ public class Recipe implements Serializable {
   }
   
   public Recipe(URL url) {
-    this.name = d.select(".field-name-title h1").text();
-    this.set("ingredients", d.select(".field-name-field-recipe-ingredients p").html().split("<br />"));
-    this.set("directions", d.select(".field-name-field-recipe-directions p").html().split("<br />"));
-    this.url = url;
-    this.prep_time = Integer.parseInt(d.select(".field-name-field-recipe-preptime .field-item").text().replace("^(\\d+).*$", "\\1"));
-    this.cook_time = Integer.parseInt(d.select(".field-name-field-recipe-cooktime .field-item").text().replace("^(\\d+).*$", "\\1"));
-    this.quantity = Integer.parseInt(d.select(".field-name-field-recipe-servings .field-item").text().replace("^(\\d+).*$", "\\1"));
-    this.comments = "";
+
   }
   
   public void set(String field, String value) throws NoSuchFieldException, IllegalAccessException {

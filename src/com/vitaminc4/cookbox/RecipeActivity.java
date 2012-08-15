@@ -35,7 +35,8 @@ public class RecipeActivity extends SherlockActivity {
     Intent i = this.getIntent();
     if (Intent.ACTION_SEND.equals(i.getAction())) {
       try {
-        recipe = new Recipe(new URL(i.getStringExtra(Intent.EXTRA_TEXT)));
+        RecipeScraper scraper = new VegwebScraper();
+        recipe = scraper.scrape(i.getStringExtra(Intent.EXTRA_TEXT));
       } catch (Exception e) { e.printStackTrace(); }
     } else {
       recipe = (Recipe) i.getSerializableExtra("recipe");

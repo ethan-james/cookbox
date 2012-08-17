@@ -29,6 +29,7 @@ public class Dropbox {
   private static DropboxAPI<AndroidAuthSession> mDBApi;
   
   public static boolean authenticate(Context c) {
+    if (mDBApi != null) return true;
     context = c;
     SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(context);
     String[] tokens = p.getString("dropbox", "").split(":");
@@ -40,6 +41,10 @@ public class Dropbox {
     mDBApi = new DropboxAPI<AndroidAuthSession>(session);  
   
     return (accessToken != null);
+  }
+  
+  public static boolean authenticated() {
+    return mDBApi != null;
   }
   
   public static void startAuthentication(Context c) {

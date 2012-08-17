@@ -31,15 +31,17 @@ public class RecipeActivity extends SherlockActivity {
   @Override public void onCreate(Bundle icicle) {
     super.onCreate(icicle);
     this.setContentView(R.layout.recipe_view);
+    Bootstrap.run(this.getApplicationContext());
 
     Intent i = this.getIntent();
-    if (Intent.ACTION_SEND.equals(i.getAction())) {
+    if ((recipe = (Recipe) i.getSerializableExtra("recipe")) == null) {
+      String key = Intent.ACTION_SEND.equals(i.getAction()) ? Intent.EXTRA_TEXT : "recipe_url";
       try {
-        RecipeScraper scraper = new VegwebScraper();
-        recipe = scraper.scrape(i.getStringExtra(Intent.EXTRA_TEXT));
+        URL url = new URL(i.getStringExtra(key));
+        RecipeScraper scraper = Bootstrap.recipeParserManager.find(url);
+        recipe = scraper.scrape(url);
+        recipe.url = url.toString();
       } catch (Exception e) { e.printStackTrace(); }
-    } else {
-      recipe = (Recipe) i.getSerializableExtra("recipe");
     }
 
     if (recipe != null) {

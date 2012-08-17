@@ -47,13 +47,8 @@ public class RecipeSearchActivity extends SherlockListActivity {
   }
 
   @Override public void onListItemClick(ListView l, View v, int position, long id) {
-    Recipe r = null;
-    try {
-      r = new Recipe(new URL("http://vegweb.com" + (String) l.getItemAtPosition(position)));
-    } catch (Exception e) { e.printStackTrace(); }
-    
     Intent i = new Intent(this, RecipeActivity.class);
-    i.putExtra("recipe", r);
+    i.putExtra("recipe_url", "http://vegweb.com" + (String) l.getItemAtPosition(position));
     startActivity(i);
   }
 }

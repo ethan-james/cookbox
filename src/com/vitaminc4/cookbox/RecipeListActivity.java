@@ -24,15 +24,17 @@ import android.content.Context;
 
 public class RecipeListActivity extends SherlockListActivity {
   /** Called when the activity is first created. */
+  private RecipeListAdapter listAdapter;
+  
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     this.setContentView(R.layout.cookbox);
     
     Context c = getApplicationContext();
-    LocalCache.initialize(c);
+    Bootstrap.run(c);
     ListView recipe_list = (ListView) findViewById(android.R.id.list);
     
-    if (Dropbox.authenticate(c)) {
+    if (Dropbox.authenticated()) {
       List<String> changed_files = Dropbox.delta();
       for (String path : changed_files) {
         String md = Dropbox.getFile(path);
@@ -40,8 +42,14 @@ public class RecipeListActivity extends SherlockListActivity {
       }
     }
     
-    recipe_list.setAdapter(new RecipeListAdapter(this));
-  }  
+    listAdapter = new RecipeListAdapter(this);
+    recipe_list.setAdapter(listAdapter);
+  }
+  
+  @Override public void onResume() {
+    super.onResume();
+    listAdapter.refresh();
+  }
   
   @Override public void onListItemClick(ListView l, View v, int position, long id) {
     Intent i = new Intent(this, RecipeActivity.class);

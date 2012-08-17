@@ -14,6 +14,7 @@ public class LocalCache {
   private static Context context;
   
   public static void initialize(Context c) {
+    if (context != null) return;
     context = c;
   }
   

@@ -17,13 +17,15 @@ public class RecipeListAdapter extends BaseAdapter {
 
 	public RecipeListAdapter(Context context) {
 		this.context = context;
+		loadRecipes();
+	}
+	
+	private void loadRecipes() {
 		this.values = new ArrayList<Recipe>();
-
     for (String f : LocalCache.getFileList()) {
       String md = LocalCache.getFile(f);
-      Log.i("Cookbox", new Integer(md.length()).toString());
       this.values.add(new Recipe(md));
-    }
+    }	  
 	}
 	
 	@Override public long getItemId(int position) {
@@ -45,5 +47,11 @@ public class RecipeListAdapter extends BaseAdapter {
 		TextView textView = (TextView) rowView.findViewById(R.id.label);
 		textView.setText(r.name);
 		return rowView;
+	}
+	
+	public void refresh() {
+	  this.values.clear();
+	  loadRecipes();
+	  notifyDataSetChanged();
 	}
 }

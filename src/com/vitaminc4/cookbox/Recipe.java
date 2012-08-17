@@ -11,17 +11,16 @@ import android.content.Context;
 import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.net.URL;
 
 public class Recipe implements Serializable {
   public String name;
-  public int prep_time;
-  public int cook_time;
+  public String prep_time;
+  public String cook_time;
   public List<String> ingredients;
   public List<String> directions;
   public String url;
   public String image_url;
-  public int quantity;
+  public String quantity;
   public String comments;
   
   public Recipe() {
@@ -37,13 +36,13 @@ public class Recipe implements Serializable {
     this.name = m.find() ? m.group(1) : "";
     
     m = Pattern.compile("^\\*\\*Prep time:\\*\\* (.+)  $", Pattern.MULTILINE).matcher(md);
-    this.prep_time = m.find() ? new Integer(m.group(1)) : 0;
+    this.prep_time = m.find() ? m.group(1) : "";
     
     m = Pattern.compile("^\\*\\*Cook time:\\*\\* (.+)  $", Pattern.MULTILINE).matcher(md);
-    this.cook_time = m.find() ? new Integer(m.group(1)) : 0;
+    this.cook_time = m.find() ? m.group(1) : "";
     
     m = Pattern.compile("^\\*\\*Quantity:\\*\\* (.+)  $", Pattern.MULTILINE).matcher(md);
-    this.quantity = m.find() ? new Integer(m.group(1)) : 0;
+    this.quantity = m.find() ? m.group(1) : "";
     
     m = Pattern.compile("(https?://\\S+)", Pattern.MULTILINE).matcher(md);
     this.url = m.find() ? m.group(1) : "";
@@ -58,16 +57,12 @@ public class Recipe implements Serializable {
     while (directions.find()) this.directions.add(directions.group(1));
   }
   
-  public Recipe(URL url) {
-
-  }
-  
   public void set(String field, String value) throws NoSuchFieldException, IllegalAccessException {
     if (field == "title") this.name = value;
-    else if (field == "preptime") this.prep_time = Integer.parseInt(value);
-    else if (field == "cooktime") this.cook_time = Integer.parseInt(value);
+    else if (field == "preptime") this.prep_time = value;
+    else if (field == "cooktime") this.cook_time = value;
     else if (field == "imageurl") this.image_url = value;
-    else if (field == "quantity") this.quantity = Integer.parseInt(value);
+    else if (field == "quantity") this.quantity = value;
     else {
         Class<?> c = this.getClass();
         Field f = c.getDeclaredField(field);

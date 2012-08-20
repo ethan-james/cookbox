@@ -77,7 +77,7 @@ public class Recipe implements Serializable {
   
   public void add(String field, String value) {
     if (field == "ingredient") this.ingredients.add(value);
-    else if (field == "recipetext") this.directions.add(value);
+    else if (field == "recipetext" || field == "direction") this.directions.add(value);
   }
   
   public String toMarkdown() {

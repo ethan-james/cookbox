@@ -49,6 +49,7 @@ public class RecipeActivity extends SherlockActivity {
       AndDown a = new AndDown();
       String html = "<html><head><style>body { background-color: black; color: white; } h1 { font-size: 20px; }</style></head><body>";
       html += a.markdownToHtml(recipe.toMarkdown()) + "</body></html>";
+      recipe_view.setBackgroundColor(0);
       recipe_view.loadData(html, "text/html", null);
     } else {
       AlertDialog.Builder builder = new AlertDialog.Builder(this);

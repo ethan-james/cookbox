@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <color name="black">#000000</color>
+  <color name="white">#FFFFFF</color>
+  <style name="CookboxTheme" parent="@style/Theme.Sherlock.Light.DarkActionBar">
+    <item name="android:windowBackground">@color/black</item>
+    <item name="android:colorBackground">@color/black</item>
+  </style>
+  <style name="CookboxListTheme" parent="@style/Theme.Sherlock.Light.DarkActionBar">
+    <item name="android:textColor">@color/white</item>
+    <item name="android:textSize">20dp</item>
+    <item name="android:paddingTop">10dp</item>
+    <item name="android:paddingBottom">10dp</item>
+    <item name="android:paddingLeft">10dp</item>
+    <item name="android:drawSelectorOnTop">true</item>
+    <item name="android:cacheColorHint">@color/black</item>
+  </style>
+  <style name="CookboxSettingsTheme" parent="@style/Theme.Sherlock.Light.DarkActionBar">
+    <item name="android:windowBackground">@color/black</item>
+    <item name="android:colorBackground">@color/black</item>
+    <item name="android:textColor">@color/white</item>
+  </style>
+</resources>

@@ -1,6 +1,7 @@
 package com.vitaminc4.cookbox;
 
 import android.content.Context;
+import android.content.Intent;
 
 public class Bootstrap {
   public static RecipeParserManager recipeParserManager = new RecipeParserManager();

@@ -1,5 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/cookbox" android:layout_width="fill_parent" android:layout_height="fill_parent">
+  <SlidingDrawer android:id="@+id/progress_drawer" 
+                 android:handle="@+id/slideHandleDPButton" 
+                 android:content="@+id/contentDPLayout"
+                 android:layout_width="fill_parent"
+                 android:layout_height="40dip"
+                 android:orientation="vertical"
+                 android:gravity="center">
+    <RelativeLayout android:id="@+id/contentDPLayout"
+                   android:layout_width="fill_parent"
+                   android:layout_height="wrap_content"  
+                   android:orientation="horizontal" 
+                   android:background="#FF000000">
+      <TextView android:id="@+id/download_status" android:layout_width="150dip" android:layout_height="wrap_content" android:layout_toLeftOf="@+id/download_progress" android:textColor="#FFFFFF"/>
+      <ProgressBar
+           android:id="@+id/download_progress"
+           android:layout_width="150dip"
+           android:layout_height="wrap_content"
+           style="@android:style/Widget.ProgressBar.Horizontal"
+           android:layout_marginRight="5dp"
+           android:layout_alignParentRight="true" />
+      <Button android:id="@+id/slideHandleDPButton" android:layout_width="0dip" android:layout_height="0dip" android:visibility="gone" />
+    </RelativeLayout>
+  </SlidingDrawer>
   <ListView android:id="@android:id/list" android:layout_width="match_parent" android:layout_height="wrap_content"></ListView>
   <SlidingDrawer android:id="@+id/search_drawer" 
                  android:handle="@+id/slideHandleButton" 

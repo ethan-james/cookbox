@@ -28,6 +28,7 @@ public class SettingsActivity extends android.preference.PreferenceActivity {
         SharedPreferences.Editor editor = getPreferenceManager().findPreference("dropbox").getEditor();
         editor.putString("dropbox", tokens);
         editor.commit();
+        Dropbox.authenticate(getApplicationContext());
       } catch (IllegalStateException e) {
         Log.i("DbAuthLog", "Error authenticating", e);
       }

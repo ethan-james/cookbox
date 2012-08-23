@@ -8,6 +8,8 @@ import org.xml.sax.XMLReader;
 import com.actionbarsherlock.app.SherlockListActivity;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.ProgressBar;
 import android.widget.ArrayAdapter;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,33 +23,33 @@ import android.widget.SlidingDrawer;
 import android.widget.EditText;
 import android.content.SharedPreferences;
 import android.content.Context;
+import android.os.AsyncTask;
 
 public class RecipeListActivity extends SherlockListActivity {
   /** Called when the activity is first created. */
   private RecipeListAdapter listAdapter;
+  private SlidingDrawer progress_drawer;
+  private ProgressBar download_progress;
+  private TextView download_status;
   
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     this.setContentView(R.layout.cookbox);
     
-    Context c = getApplicationContext();
-    Bootstrap.run(c);
+    Bootstrap.run(getApplicationContext());
     ListView recipe_list = (ListView) findViewById(android.R.id.list);
+    progress_drawer = (SlidingDrawer) findViewById(R.id.progress_drawer);
+    download_progress = (ProgressBar) findViewById(R.id.download_progress);
+    download_status = (TextView) findViewById(R.id.download_status);
     
-    if (Dropbox.authenticated()) {
-      List<String> changed_files = Dropbox.delta();
-      for (String path : changed_files) {
-        String md = Dropbox.getFile(path);
-        LocalCache.writeToFile(path, md);
-      }
-    }
-    
+    if (Dropbox.authenticated()) new DownloaderTask().execute();    
     listAdapter = new RecipeListAdapter(this);
     recipe_list.setAdapter(listAdapter);
   }
   
   @Override public void onResume() {
     super.onResume();
+    if (Dropbox.authenticated()) new DownloaderTask().execute();
     listAdapter.refresh();
   }
   
@@ -90,6 +92,45 @@ public class RecipeListActivity extends SherlockListActivity {
     Intent i = new Intent(this, RecipeSearchActivity.class);
     i.putExtra("search", e.getText().toString());
     startActivity(i);
+  }
+  
+  private class DownloaderTask extends AsyncTask<Object, Integer, Boolean> {
+    @Override protected Boolean doInBackground(Object... params) {
+      int progress = 0;
+      publishProgress(-1, progress);
+      List<String> changed_files = Dropbox.delta();
+      progress++;
+      for (String path : changed_files) {
+        publishProgress(0, progress, changed_files.size());
+        String md = Dropbox.getFile(path);
+        LocalCache.writeToFile(path, md);
+        progress++;
+      }
+      return true;
+    }
+
+    @Override protected void onProgressUpdate(Integer... progress) {
+      switch (progress[0]) {
+        case -1:
+          download_status.setText("Checking for recipes...");
+          break;
+        case 0:
+          download_status.setText("Downloading recipes...");
+          break;
+      }
+      
+      if (progress.length > 2) download_progress.setMax(progress[2]);
+      download_progress.setProgress(progress[1]);
+    }
+
+    @Override protected void onPreExecute() {
+      progress_drawer.open();
+    }
+
+    @Override protected void onPostExecute(Boolean o) {
+      listAdapter.refresh();
+      progress_drawer.close();
+    }
   }
 }
 

@@ -24,15 +24,16 @@ public class Dropbox {
   final static private AccessType ACCESS_TYPE = AccessType.APP_FOLDER;
   final static private int delta_refresh_window = 600;
   private static Context context;
+  private static SharedPreferences preferences;
 
   private static int last_delta = 0;
-  private static DropboxAPI<AndroidAuthSession> mDBApi;
+  private static DropboxAPI<AndroidAuthSession> mDBApi = null;
   
   public static boolean authenticate(Context c) {
     if (mDBApi != null) return true;
     context = c;
-    SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(context);
-    String[] tokens = p.getString("dropbox", "").split(":");
+    preferences = PreferenceManager.getDefaultSharedPreferences(context);
+    String[] tokens = preferences.getString("dropbox", "").split(":");
     String key = tokens.length == 2 ? tokens[0] : null;
     String secret = tokens.length == 2 ? tokens[1] : null;
     AppKeyPair appKeyPair = new AppKeyPair(APP_KEY, APP_SECRET);
@@ -44,7 +45,7 @@ public class Dropbox {
   }
   
   public static boolean authenticated() {
-    return mDBApi != null;
+    return preferences != null && preferences.getString("dropbox", null) != null;
   }
   
   public static void startAuthentication(Context c) {

@@ -56,4 +56,11 @@ public class LocalCache {
     
     return text.toString();
   }
+  
+  public static void deleteFile(String filename) {
+    File dir = context.getDir("recipes", Context.MODE_PRIVATE);
+    File file = new File(dir.getAbsolutePath() + "/" + filename);
+    file.delete();
+    Log.w("Cookbox", "Deleting " + filename);
+  }
 }

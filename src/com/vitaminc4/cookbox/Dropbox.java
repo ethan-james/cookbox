@@ -85,7 +85,8 @@ public class Dropbox {
         page = mDBApi.delta(cursor);
         cursor = page.cursor;
         for (DropboxAPI.DeltaEntry e : (List<DropboxAPI.DeltaEntry>) page.entries) {
-          if (e.metadata != null) files.add(e.lcPath);
+          if (e.metadata == null) LocalCache.deleteFile(e.lcPath);
+          else files.add(e.lcPath);
         }
       } while (page.hasMore);
 

@@ -99,12 +99,11 @@ public class RecipeListActivity extends SherlockListActivity {
       int progress = 0;
       publishProgress(-1, progress);
       List<String> changed_files = Dropbox.delta();
-      progress++;
       for (String path : changed_files) {
+        progress++;
         publishProgress(0, progress, changed_files.size());
         String md = Dropbox.getFile(path);
         LocalCache.writeToFile(path, md);
-        progress++;
       }
       return true;
     }

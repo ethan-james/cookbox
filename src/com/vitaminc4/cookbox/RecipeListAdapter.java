@@ -10,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.util.Log;
 import android.database.Cursor;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class RecipeListAdapter extends BaseAdapter {
 	private final Context context;
@@ -25,7 +27,12 @@ public class RecipeListAdapter extends BaseAdapter {
     for (String f : LocalCache.getFileList()) {
       String md = LocalCache.getFile(f);
       this.values.add(new Recipe(md));
-    }	  
+    }
+    Collections.sort(this.values, new Comparator<Recipe>() {
+      public int compare(Recipe r1, Recipe r2) {
+        return r1.name.compareToIgnoreCase(r2.name);
+      }
+    });
 	}
 	
 	@Override public long getItemId(int position) {

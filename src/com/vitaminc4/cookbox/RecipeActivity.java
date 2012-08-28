@@ -19,7 +19,10 @@ import java.io.IOException;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import java.net.URL;
-
+import android.text.Html;
+import android.text.Html.TagHandler;
+import android.text.Editable;
+import org.xml.sax.XMLReader;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -70,6 +73,16 @@ public class RecipeActivity extends SherlockActivity {
     LocalCache.writeToFile(path, contents);
     Dropbox.putFile(path, contents);
   }
+  
+  public void share() {
+    Intent i = new Intent(android.content.Intent.ACTION_SEND);
+    AndDown a = new AndDown();
+    
+    i.setType("text/html");
+    i.putExtra(android.content.Intent.EXTRA_SUBJECT, recipe.name);
+    i.putExtra(android.content.Intent.EXTRA_TEXT, Html.fromHtml(a.markdownToHtml(recipe.toMarkdown()), null, new ListTagHandler()));
+    startActivity(Intent.createChooser(i, "Share via"));
+  }
 
   @Override public boolean onCreateOptionsMenu(Menu m) {
     MenuInflater i = getSupportMenuInflater();
@@ -82,7 +95,19 @@ public class RecipeActivity extends SherlockActivity {
       case R.id.keep_menu_item:
         store();
         return true;
+      case R.id.share_menu_item:
+        share();
+        return true;
     }
     return false;
+  }
+  
+  public class ListTagHandler implements TagHandler {
+    public void handleTag (boolean opening, String tag, Editable output, XMLReader xmlReader) {
+      if (tag.equalsIgnoreCase("li")) {
+         if (opening) output.append("\u2022 ");
+         else output.append("\n");
+      }
+    }
   }
 }

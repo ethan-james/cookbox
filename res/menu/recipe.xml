@@ -1,3 +1,4 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+  <item android:id="@+id/share_menu_item" android:title="@string/share" android:showAsAction="ifRoom"/>
   <item android:id="@+id/keep_menu_item" android:title="@string/keep" android:showAsAction="ifRoom"/>
 </menu>

@@ -10,21 +10,15 @@ public class VegwebScraper extends RecipeScraper {
   public Recipe scrape(String html) {
     Recipe r = new Recipe();
     Document d = Jsoup.parse(html);
-    r.name = d.select(".field-name-title h1").text();
-    Log.w("Cookbox", r.name);
+    r.name.set(d.select(".field-name-title h1").text());
     r.set("ingredients", d.select(".field-name-field-recipe-ingredients p").html().split("<br />"));
-    Log.w("Cookbox", r.ingredients.toString());
     r.set("directions", d.select(".field-name-field-recipe-directions p").html().split("<br />"));
     // r.url = url;
-    Log.w("Cookbox", r.directions.toString());
     
-    r.prep_time = d.select(".field-name-field-recipe-preptime .field-item").text();
-    Log.w("Cookbox", r.prep_time);
-    r.cook_time = d.select(".field-name-field-recipe-cooktime .field-item").text();
-    Log.w("Cookbox", r.cook_time);
-    r.quantity = d.select(".field-name-field-recipe-servings .field-item").text();
-    Log.w("Cookbox", r.quantity);
-    r.comments = "";
+    r.prep_time.set(d.select(".field-name-field-recipe-preptime .field-item").text());
+    r.cook_time.set(d.select(".field-name-field-recipe-cooktime .field-item").text());
+    r.quantity.set(d.select(".field-name-field-recipe-servings .field-item").text());
+    r.comments.set("");
     return r;
   }
 }

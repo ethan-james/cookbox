@@ -11,58 +11,108 @@ import android.content.Context;
 import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.orm.androrm.*;
+import org.apache.commons.lang3.StringUtils;
 
-public class Recipe implements Serializable {
-  public String name;
-  public String prep_time;
-  public String cook_time;
-  public List<String> ingredients;
-  public List<String> directions;
-  public String url;
-  public String image_url;
-  public String quantity;
-  public String comments;
+class ListField extends CharField {
+  public String[] split() {
+    return StringUtils.split("\n* ");
+  }
+
+  public void add(String line) {
+    String current = get();
+    if (current != null && current.length() == 0) set(line);
+    else set(get() + "\n* " + line);
+  }
+
+  public void set(String[] list) {
+    set(StringUtils.join(list, "\n* "));
+  }
+}
+
+class Ingredient extends Model {
+  public ForeignKeyField<Recipe> recipe;
+  public ForeignKeyField<Food> food;
+  public ForeignKeyField<Serving> serving;
+  public CharField text = new CharField();
+
+  public Ingredient() {
+    super();
+    recipe = new ForeignKeyField<Recipe>(Recipe.class);
+    food = new ForeignKeyField<Food>(Food.class);
+    serving = new ForeignKeyField<Serving>(Serving.class);
+  }
+
+  public static Ingredient make(String text) {
+    Ingredient i = new Ingredient();
+    Serving s = Serving.search(text);
+    Food f = (s == null) ? null : s.food.get();
+
+    i.text.set(text);
+    if (s != null) i.serving.set(s);
+    if (f != null) i.food.set(f);
+    return i;
+  }
+
+  public static Ingredient create(String text) {
+    Ingredient i = Ingredient.make(text);
+    i.save(Bootstrap.context);
+    return i;
+  }
+}
+
+public class Recipe extends Model {
+  public CharField name = new CharField();
+  public CharField prep_time = new CharField();
+  public CharField cook_time = new CharField();
+  public OneToManyField<Recipe, Ingredient> ingredients;
+  public ListField directions = new ListField();
+  public CharField url = new CharField();
+  public CharField quantity = new CharField();
+  public CharField comments = new CharField();
+  public CharField markdown = new CharField();
   
   public Recipe() {
-    this.ingredients = new ArrayList<String>();
-    this.directions = new ArrayList<String>();
+    super();
+    ingredients = new OneToManyField<Recipe, Ingredient>(Recipe.class, Ingredient.class);
   }
   
   public Recipe(String md) {
-    this.ingredients = new ArrayList<String>();
-    this.directions = new ArrayList<String>();
+    this();
+
+    this.markdown.set(md);
 
     Matcher m = Pattern.compile("# (.+) #").matcher(md);
-    this.name = m.find() ? m.group(1) : "";
+    this.name.set(m.find() ? m.group(1) : "");
     
     m = Pattern.compile("^\\*\\*Prep time:\\*\\* (.+)  $", Pattern.MULTILINE).matcher(md);
-    this.prep_time = m.find() ? m.group(1) : "";
+    this.prep_time.set(m.find() ? m.group(1) : "");
     
     m = Pattern.compile("^\\*\\*Cook time:\\*\\* (.+)  $", Pattern.MULTILINE).matcher(md);
-    this.cook_time = m.find() ? m.group(1) : "";
+    this.cook_time.set(m.find() ? m.group(1) : "");
     
     m = Pattern.compile("^\\*\\*Quantity:\\*\\* (.+)  $", Pattern.MULTILINE).matcher(md);
-    this.quantity = m.find() ? m.group(1) : "";
+    this.quantity.set(m.find() ? m.group(1) : "");
     
     m = Pattern.compile("(https?://\\S+)", Pattern.MULTILINE).matcher(md);
-    this.url = m.find() ? m.group(1) : "";
+    this.url.set(m.find() ? m.group(1) : "");
     
     m = Pattern.compile("^\\*\\*Comments:\\*\\* (.+)", Pattern.MULTILINE).matcher(md);
-    this.comments = m.find() ? m.group(1) : "";
+    this.comments.set(m.find() ? m.group(1) : "");
     
     Matcher ingredients = Pattern.compile("^\\* (.+)$", Pattern.MULTILINE).matcher(md);
-    while (ingredients.find()) this.ingredients.add(ingredients.group(1));
+    while (ingredients.find()) this.ingredients.add(Ingredient.create(ingredients.group(1)));
     
     Matcher directions = Pattern.compile("^\\d+\\. (.+)$", Pattern.MULTILINE).matcher(md);
     while (directions.find()) this.directions.add(directions.group(1));
   }
   
-  public void set(String field, String value) throws NoSuchFieldException, IllegalAccessException {
-    if (field == "title") this.name = value;
-    else if (field == "preptime") this.prep_time = value;
-    else if (field == "cooktime") this.cook_time = value;
-    else if (field == "imageurl") this.image_url = value;
-    else if (field == "quantity") this.quantity = value;
+  public void set(String field, String value) throws java.lang.NoSuchFieldException, IllegalAccessException {
+    if (field == "title") this.name.set(value);
+    else if (field == "preptime") this.prep_time.set(value);
+    else if (field == "cooktime") this.cook_time.set(value);
+    // else if (field == "imageurl") this.image_url.set(value);
+    else if (field == "quantity") this.quantity.set(value);
     else {
         Class<?> c = this.getClass();
         Field f = c.getDeclaredField(field);
@@ -71,12 +121,13 @@ public class Recipe implements Serializable {
   }
   
   public void set(String field, String[] values) {
-    if (field == "ingredients") this.ingredients = Arrays.asList(values);
-    else if (field == "directions") this.directions = Arrays.asList(values);
+    if (field == "ingredients") {
+      for (String ingredient : values) ingredients.add(Ingredient.make(ingredient));
+    } else if (field == "directions") this.directions.set(values);
   }
   
   public void add(String field, String value) {
-    if (field == "ingredient") this.ingredients.add(value);
+    if (field == "ingredient") ingredients.add(Ingredient.make(value));
     else if (field == "recipetext" || field == "direction") this.directions.add(value);
   }
   
@@ -85,37 +136,30 @@ public class Recipe implements Serializable {
     String md = "# " + this.name + " #\n\n";
     
     md += "**Ingredients**  \n\n";
-    
-    for (String ingredient : this.ingredients) md += "* " + ingredient + "\n";
+    for (Ingredient ingredient : this.ingredients.get(Bootstrap.context, this)) md += "* " + ingredient.text.get() + "\n";
     
     md += "\n**Directions**  \n\n";
-    for (String direction : this.directions) md += "1. " + direction + "\n";
+    for (String direction : this.directions.split()) md += "1. " + direction + "\n";
     
     md += "\n";
-    md += "**Prep time:** " + this.prep_time + "  \n";
-    md += "**Cook time:** " + this.cook_time + "  \n";
-    md += "**Quantity:** " + this.quantity + "  \n";
+    md += "**Prep time:** " + this.prep_time.get() + "  \n";
+    md += "**Cook time:** " + this.cook_time.get() + "  \n";
+    md += "**Quantity:** " + this.quantity.get() + "  \n";
     md += this.url + "\n\n";
-    md += "**Comments:** " + this.comments;
+    md += "**Comments:** " + this.comments.get();
     
     return md;
   }
   
   public String toString() {
-    return this.name + ": " + this.url;
+    return this.name.get() + ": " + this.url.get();
   }
   
   public String slug() {
-    return this.name.toLowerCase().replaceAll("[^a-z0-9]+", "-");
+    return this.name.get().toLowerCase().replaceAll("[^a-z0-9]+", "-");
   }
 
-  protected String convertStreamToString(InputStream is) {
-    try {
-      Scanner scanner = new Scanner(is, "UTF-8").useDelimiter("\\A");
-      if (scanner.hasNext()) return scanner.next();
-      return "";
-    } catch (java.util.NoSuchElementException e) {
-      return "";
-    }
+  public static final QuerySet<Recipe> objects(Context context) {
+    return objects(context, Recipe.class);
   }
 }

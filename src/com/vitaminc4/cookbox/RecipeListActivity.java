@@ -49,13 +49,14 @@ public class RecipeListActivity extends SherlockListActivity {
   
   @Override public void onResume() {
     super.onResume();
+
     if (Dropbox.authenticated()) new DownloaderTask().execute();
     listAdapter.refresh();
   }
   
   @Override public void onListItemClick(ListView l, View v, int position, long id) {
     Intent i = new Intent(this, RecipeActivity.class);
-    i.putExtra("recipe", (Recipe) l.getItemAtPosition(position));
+    i.putExtra("recipe_id", (int)l.getItemIdAtPosition(position));
     startActivity(i);
   }
   
@@ -102,8 +103,10 @@ public class RecipeListActivity extends SherlockListActivity {
       for (String path : changed_files) {
         progress++;
         publishProgress(0, progress, changed_files.size());
-        String md = Dropbox.getFile(path);
-        LocalCache.writeToFile(path, md);
+        String f = Dropbox.getFile(path);
+        Recipe r = new Recipe(f);
+        r.save(Bootstrap.context);
+        // LocalCache.writeToFile(path, md);
       }
       return true;
     }

@@ -23,7 +23,7 @@
         <data android:mimeType="text/plain" />
       </intent-filter>
     </activity>
-    <activity android:name="RecipeSearchActivity" android:label="@string/app_name" android:theme="@style/Theme.Sherlock.Light.DarkActionBar">
+    <activity android:name="RecipeSearchActivity" android:label="@string/app_name" android:theme="@style/CookboxTheme">
       <intent-filter>
           <action android:name="android.intent.action.VIEW" />
       </intent-filter>

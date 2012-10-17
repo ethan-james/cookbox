@@ -10,12 +10,8 @@ import android.content.res.Resources;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import com.commonsware.cwac.anddown.AndDown;
-import java.io.InputStream;
-import java.io.ByteArrayInputStream;
+import java.io.*;
 import android.content.Context;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import java.net.URL;
@@ -30,6 +26,7 @@ import com.actionbarsherlock.view.MenuInflater;
 
 public class RecipeActivity extends SherlockActivity {
   private Recipe recipe;
+  private int recipe_id;
   
   @Override public void onCreate(Bundle icicle) {
     super.onCreate(icicle);
@@ -37,21 +34,23 @@ public class RecipeActivity extends SherlockActivity {
     Bootstrap.run(this.getApplicationContext());
 
     Intent i = this.getIntent();
-    if ((recipe = (Recipe) i.getSerializableExtra("recipe")) == null) {
+    if ((recipe_id = i.getIntExtra("recipe_id", -1)) == -1) {
       String key = Intent.ACTION_SEND.equals(i.getAction()) ? Intent.EXTRA_TEXT : "recipe_url";
       try {
         URL url = new URL(i.getStringExtra(key));
         RecipeScraper scraper = Bootstrap.recipeParserManager.find(url);
         recipe = scraper.scrape(url);
-        recipe.url = url.toString();
+        recipe.url.set(url.toString());
       } catch (Exception e) { e.printStackTrace(); }
+    } else {
+      recipe = Recipe.objects(Bootstrap.context).get(recipe_id);
     }
 
     if (recipe != null) {
       WebView recipe_view = (WebView) findViewById(R.id.recipe);
       AndDown a = new AndDown();
       String html = "<html><head><style>body { background-color: black; color: white; } h1 { font-size: 20px; }</style></head><body>";
-      html += a.markdownToHtml(recipe.toMarkdown()) + "</body></html>";
+      html += a.markdownToHtml(recipe.markdown.get()) + "</body></html>";
       recipe_view.setBackgroundColor(0);
       recipe_view.loadData(html, "text/html", null);
     } else {
@@ -68,10 +67,8 @@ public class RecipeActivity extends SherlockActivity {
   }
   
   public void store() {
-    String path = recipe.slug() + ".md";
-    String contents = recipe.toMarkdown();
-    LocalCache.writeToFile(path, contents);
-    Dropbox.putFile(path, contents);
+    recipe.save(Bootstrap.context);
+    Dropbox.putFile(recipe.slug() + ".md", recipe.markdown.get());
   }
   
   public void share() {
@@ -79,8 +76,8 @@ public class RecipeActivity extends SherlockActivity {
     AndDown a = new AndDown();
     
     i.setType("text/html");
-    i.putExtra(android.content.Intent.EXTRA_SUBJECT, recipe.name);
-    i.putExtra(android.content.Intent.EXTRA_TEXT, Html.fromHtml(a.markdownToHtml(recipe.toMarkdown()), null, new ListTagHandler()));
+    i.putExtra(android.content.Intent.EXTRA_SUBJECT, recipe.name.get());
+    i.putExtra(android.content.Intent.EXTRA_TEXT, Html.fromHtml(a.markdownToHtml(recipe.markdown.get()), null, new ListTagHandler()));
     startActivity(Intent.createChooser(i, "Share via"));
   }
 

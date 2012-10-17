@@ -14,18 +14,22 @@ public class One01cookbooksScraper extends RecipeScraper {
     Element ingredients = recipe.select("blockquote").first();
 
     for (Element e : ingredients.select("p")) {
-      for (String line : e.html().split("<br />")) r.add("ingredient", line);
+      for (String line : e.html().split("<br />")) {
+        Ingredient i = new Ingredient();
+        i.text.set(line);
+        r.ingredients.add(i);
+      }
     }
     Element e = ingredients.nextElementSibling();
     while (e != null && e.tagName() == "p") {
-      if (e.text().equals(e.select("i").text())) r.quantity = e.text();
-      else for (String line : e.html().split("<br />")) r.add("direction", line);
+      if (e.text().equals(e.select("i").text())) r.quantity.set(e.text());
+      else for (String line : e.html().split("<br />")) r.directions.add(line);
       e = e.nextElementSibling();
     }
-    r.name = d.select("#recipe h1").text();
-    r.prep_time = d.select("#recipe .recipetimes .preptime").text();
-    r.cook_time = d.select("#recipe .recipetimes .cooktime").text();
-    r.comments = "";
+    r.name.set(d.select("#recipe h1").text());
+    r.prep_time.set(d.select("#recipe .recipetimes .preptime").text());
+    r.cook_time.set(d.select("#recipe .recipetimes .cooktime").text());
+    r.comments.set("");
     return r;
   }
 }

@@ -32,25 +32,22 @@ class ListField extends CharField {
 
 class Ingredient extends Model {
   public ForeignKeyField<Recipe> recipe;
-  public ForeignKeyField<Food> food;
   public ForeignKeyField<Serving> serving;
   public CharField text = new CharField();
+  public CharField canonical = new CharField();
 
   public Ingredient() {
     super();
     recipe = new ForeignKeyField<Recipe>(Recipe.class);
-    food = new ForeignKeyField<Food>(Food.class);
     serving = new ForeignKeyField<Serving>(Serving.class);
   }
 
   public static Ingredient make(String text) {
     Ingredient i = new Ingredient();
     Serving s = Serving.search(text);
-    Food f = (s == null) ? null : s.food.get();
 
     i.text.set(text);
     if (s != null) i.serving.set(s);
-    if (f != null) i.food.set(f);
     return i;
   }
 

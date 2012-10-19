@@ -17,6 +17,7 @@ import java.io.BufferedReader;
 import java.util.*;
 import java.io.InputStreamReader;
 import org.json.*;
+import org.apache.commons.lang3.StringUtils;
 
 public class FatSecret {
   final static private String APP_METHOD = "GET";
@@ -48,28 +49,41 @@ public class FatSecret {
 
       if (foods_object == null) {
         if (foods_array != null) {
+          // List<String> names = new ArrayList<String>();
+          // for (int i = 0; i < foods_array.length(); i++) names.add(foods_array.getJSONObject(i).optString("food_name"));
+          // Log.w("Cookbox", f + " ~ " + StringUtils.join(names, ", "));
           food = foods_array.getJSONObject(0);
         }
       } else {
         foods_array = foods_object.optJSONArray("food");
-        if (foods_array != null) food = foods_array.optJSONObject(0);
+        if (foods_array != null) {
+          // List<String> names = new ArrayList<String>();
+          // for (int i = 0; i < foods_array.length(); i++) names.add(foods_array.getJSONObject(i).optString("food_name"));
+          // Log.w("Cookbox", f + " = " + StringUtils.join(names, ", "));
+          food = foods_array.optJSONObject(0);
+        } else {
+          Log.w("Cookbox", f + " - nothing found(?)");
+        }
       }
       
-      String food_id = (food == null) ? null : food.getString("food_id");
+      String food_id = (food == null) ? null : food.optString("food_id");
 
-      params = new ArrayList<String>(Arrays.asList(generateOauthParams()));
-      params.add("method=food.get");
-      params.add("food_id=" + food_id);
-      params.add("oauth_signature=" + sign(APP_METHOD, APP_URL, params.toArray(template)));
+      if (food_id != null) {
+        params = new ArrayList<String>(Arrays.asList(generateOauthParams()));
+        params.add("method=food.get");
+        params.add("food_id=" + food_id);
+        params.add("oauth_signature=" + sign(APP_METHOD, APP_URL, params.toArray(template)));
 
-      url = new URL(APP_URL + "?" + paramify(params.toArray(template)));
-      api = url.openConnection();
-      builder = new StringBuilder();
-      reader = new BufferedReader(new InputStreamReader(api.getInputStream()));
+        url = new URL(APP_URL + "?" + paramify(params.toArray(template)));
+        api = url.openConnection();
+        builder = new StringBuilder();
+        reader = new BufferedReader(new InputStreamReader(api.getInputStream()));
 
-      while ((line = reader.readLine()) != null) builder.append(line);
-      return new JSONObject(builder.toString());
+        while ((line = reader.readLine()) != null) builder.append(line);
+        return new JSONObject(builder.toString());
+      }
     } catch (Exception e) {
+      Log.w("Cookbox", "ooo kay");
       e.printStackTrace();
     }
 
@@ -99,8 +113,10 @@ public class FatSecret {
       // Log.w("Cookbox", "signature: " + signature);
       return signature;
     } catch (java.security.NoSuchAlgorithmException e) {
+      Log.w("Cookbox", e.getMessage());
       return null;
     } catch (java.security.InvalidKeyException e) {
+      Log.w("Cookbox", e.getMessage());
       return null;
     }
   }

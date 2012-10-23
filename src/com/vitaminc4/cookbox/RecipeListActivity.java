@@ -106,7 +106,6 @@ public class RecipeListActivity extends SherlockListActivity {
         String f = Dropbox.getFile(path);
         Recipe r = new Recipe(f);
         r.save(Bootstrap.context);
-        // LocalCache.writeToFile(path, md);
       }
       return true;
     }

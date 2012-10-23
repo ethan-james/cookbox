@@ -44,10 +44,10 @@ class Ingredient extends Model {
 
   public static Ingredient make(String text) {
     Ingredient i = new Ingredient();
-    Serving s = Serving.search(text);
+    // Serving s = Serving.search(text);
 
     i.text.set(text);
-    if (s != null) i.serving.set(s);
+    // if (s != null) i.serving.set(s);
     return i;
   }
 

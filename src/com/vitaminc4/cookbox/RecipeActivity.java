@@ -69,7 +69,7 @@ public class RecipeActivity extends SherlockActivity {
   
   public void store() {
     recipe.save(Bootstrap.context);
-    Dropbox.putFile(recipe.slug() + ".md", recipe.markdown.get());
+    Dropbox.putFile(recipe.slug() + ".mdown", recipe.markdown.get());
   }
   
   public void share() {

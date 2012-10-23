@@ -5,6 +5,9 @@ import android.util.Log;
 import com.orm.androrm.*;
 import org.json.*;
 import org.apache.commons.lang3.StringUtils;
+import java.util.regex.*;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Food extends Model {
   public IntegerField food_id = new IntegerField(); // FatSecret food id
@@ -15,6 +18,11 @@ public class Food extends Model {
   public OneToManyField<Food, Serving> servings;
 
   public static String[] serving_words = {
+    "drizzle",
+    "slices",
+    "slice",
+    "bulbs",
+    "bulb",
     "stalks",
     "stalk",
     "canisters",
@@ -25,14 +33,18 @@ public class Food extends Model {
     "cube",
     "splash",
     "pinch",
+    "taste",
     "to",
     "lbs",
     "lb",
-    "^a ",
-    " a ",
+    "kg",
+    "kgs",
+    "g",
+    "a",
+    "as",
     "dash",
-    " or ",
-    " of ",
+    "few",
+    "couple",
     "heads",
     "head",
     "quarts",
@@ -60,7 +72,13 @@ public class Food extends Model {
     "small",
     "medium",
     "large",
-    "big"
+    "big",
+    "generous",
+    "chopped",
+    "diced",
+    "freshly",
+    "optional",
+    "needed"
   };
 
   public Food() {
@@ -121,12 +139,21 @@ public class Food extends Model {
   }
 
   public static String canonize(String text) {
-    String canonical = text.trim().replaceFirst("^\\d+[-/0-9\\u00BC\\u00BD\\u00BE ]*", "").trim();
-    canonical = canonical.replaceAll("\\([^()]+\\)", "").trim();
-    canonical = canonical.replaceAll(",[-a-zA-Z0-9 /.,"]+$", "").trim();
-    canonical = canonical.replaceFirst("^(" + StringUtils.join(Food.serving_words, "|") + ")", "").trim();
-    Log.w("Cookbox", canonical);
-    return canonical;
+    String canonical = StringUtils.strip(text, " ,.");
+    Pattern serving_words_pattern = Pattern.compile(StringUtils.join(Food.serving_words, "|"));
+    Pattern contains_letter_pattern = Pattern.compile(".*[a-z].*");
+
+    canonical = StringUtils.strip(canonical.replaceAll("\\([^()]+\\)", ""), " ,.-");
+    String[] words = canonical.trim().split("\\s+");
+    List<String> canonical_words = new ArrayList<String>();
+    for (String word : words) {
+      String w = word.toLowerCase();
+      Matcher serving_words = serving_words_pattern.matcher(w);
+      Matcher contains_letter = contains_letter_pattern.matcher(w);
+      if (contains_letter.matches() && !serving_words.matches()) canonical_words.add(StringUtils.strip(word, " ,."));
+    }
+    // canonical = canonical.replaceAll(",[-a-zA-Z0-9 /.,\"]+$", "").trim();
+    return StringUtils.join(canonical_words, " ");
   }
 }
 

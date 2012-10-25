@@ -32,14 +32,14 @@ class ListField extends CharField {
 
 class Ingredient extends Model {
   public ForeignKeyField<Recipe> recipe;
-  public ForeignKeyField<Serving> serving;
+  // public ForeignKeyField<Serving> serving;
   public CharField text = new CharField();
   public CharField canonical = new CharField();
 
   public Ingredient() {
     super();
     recipe = new ForeignKeyField<Recipe>(Recipe.class);
-    serving = new ForeignKeyField<Serving>(Serving.class);
+    // serving = new ForeignKeyField<Serving>(Serving.class);
   }
 
   public static Ingredient make(String text) {

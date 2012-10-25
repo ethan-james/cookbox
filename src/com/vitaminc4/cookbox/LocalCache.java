@@ -1,10 +1,7 @@
 package com.vitaminc4.cookbox;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileInputStream;
+import java.io.*;
 import java.util.Scanner;
-import java.io.IOException;
 import android.content.Context;
 import java.util.List;
 import java.util.ArrayList;
@@ -55,6 +52,22 @@ public class LocalCache {
     }
     
     return text.toString();
+  }
+
+  public static String getAsset(String filename) {
+    try {
+      InputStream is = context.getAssets().open(filename);
+      BufferedReader br = new BufferedReader(new InputStreamReader(is));
+      StringBuilder text = new StringBuilder();
+      String line = null;
+
+      while ((line = br.readLine()) != null) text.append(line + "\n");
+
+      return text.toString();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return null;
   }
   
   public static void deleteFile(String filename) {

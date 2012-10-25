@@ -39,7 +39,7 @@ public class RecipeActivity extends SherlockActivity {
       String key = Intent.ACTION_SEND.equals(i.getAction()) ? Intent.EXTRA_TEXT : "recipe_url";
       try {
         URL url = new URL(i.getStringExtra(key));
-        RecipeScraper scraper = Bootstrap.recipeParserManager.find(url);
+        RecipeScraper scraper = new RecipeScraper();
         recipe = scraper.scrape(url);
         recipe.url.set(url.toString());
       } catch (Exception e) { e.printStackTrace(); }

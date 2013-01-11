@@ -65,7 +65,7 @@ public class Dropbox {
   public static boolean putFile(String filename, String contents) {
     try {
       InputStream is = new ByteArrayInputStream(contents.getBytes("UTF-8"));
-      DropboxAPI.Entry e = mDBApi.putFileOverwrite(filename, is, contents.length(), null);
+      DropboxAPI.Entry e = mDBApi.putFileOverwrite("/recipes/" + filename, is, contents.length(), null);
       Log.i("Cookbox", filename + " rev " + e.rev + " uploaded to Dropbox");
       return true;
     } catch (Exception e) {

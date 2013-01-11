@@ -104,8 +104,10 @@ public class RecipeListActivity extends SherlockListActivity {
         progress++;
         publishProgress(0, progress, changed_files.size());
         String f = Dropbox.getFile(path);
-        Recipe r = new Recipe(f);
-        r.save(Bootstrap.context);
+        if (f != null) {
+          Recipe r = new Recipe(f);
+          r.save(Bootstrap.context);
+        }
       }
       return true;
     }
